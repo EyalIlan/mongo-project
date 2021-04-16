@@ -18,6 +18,20 @@ const NumberAndAboveZero = (num) =>{
 
 
 
+const checkIndex = (data,id) =>{
+    let index = data.map(p => {
+        return p.id
+    }).indexOf(id)
+
+    if(index === -1){
+        return false
+    }else{
+        return index
+    }
+
+}
+
+
 const addUser = (req, res) => {
 
     const id = generateUniqueId();
@@ -44,11 +58,9 @@ const Depositing = (req, res) => {
 
     fs.readFile('users.json', (err, data) => {
         data = JSON.parse(data)
-        let index = data.map(p => {
-            return p.id
-        }).indexOf(id)
+        let index = checkIndex(data,id)
 
-        if (index !== -1 && NumberAndAboveZero(deposit)) {
+        if (index && NumberAndAboveZero(deposit)) {
 
             // console.log(index)
             data[index].cash += deposit
@@ -73,11 +85,9 @@ const updatingUser = (req, res) => {
 
     fs.readFile('users.json', (err, data) => {
         data = JSON.parse(data)
-        let index = data.map(p => {
-            return p.id
-        }).indexOf(id)
+        let index =  checkIndex(data,id)
 
-        if (index !== -1 && NumberAndAboveZero(credit)) {
+        if (index && NumberAndAboveZero(credit)) {
 
             data[index].credit = credit
             fs.writeFile('users.json',JSON.stringify(data),(err) =>{
@@ -99,11 +109,9 @@ const withdrawCash = (req,res) =>{
 
     fs.readFile('users.json', (err, data) => {
         data = JSON.parse(data)
-        let index = data.map(p => {
-            return p.id
-        }).indexOf(id)
+        let index = checkIndex(data,index)
 
-        if (index !== -1 && NumberAndAboveZero(withdraw)) {
+        if (index  && NumberAndAboveZero(withdraw)) {
 
             if(data[index].cash - withdraw >= -data[index].credit){
                 data[index].cash -= withdraw
@@ -121,11 +129,46 @@ const withdrawCash = (req,res) =>{
 }
 
 
+const TransferringCash = (req,res) =>{
+
+    const {id1,id2} = req.params
+    const transfer = req.body.transfer
+
+    fs.readFile('users.json',(error,data) =>{
+
+        data = JSON.parse(data)
+
+        let index1 = checkIndex(data,id1)
+        let index2 = checkIndex(data,id2)
+
+        console.log(index1)
+        console.log(index2)
+        console.log(data)
+        
+        if(index1 !== false && index2 !==false && NumberAndAboveZero(transfer)){
+            
+            
+            if(data[index1].cash - transfer >= -data[index1].credit){
+                
+                data[index1].cash -= transfer
+                data[index2].cash += transfer
+            }
+
+            // console.log(data)
+
+            fs.writeFile('users.json',JSON.stringify(data),err => console.log(err))
+
+        }
+
+    })
+
+}
 
 
 module.exports = {
     addUser,
     Depositing,
     updatingUser,
-    withdrawCash
+    withdrawCash,
+    TransferringCash
 }
