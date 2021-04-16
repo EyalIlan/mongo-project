@@ -10,4 +10,6 @@ router.post('/add',userController.addUser)
 
 router.post('/deposit/:id',userController.Depositing)
 
+router.post('/credit/:id',userController.updatingUser)
+
 module.exports = router
