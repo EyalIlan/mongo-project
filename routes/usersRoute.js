@@ -6,11 +6,16 @@ const router = express.Router()
 
 
 
+router.get('/',userController.getAllUsers)
+
+router.get('/user/:id',userController.getUser)
+
+
 router.post('/add',userController.addUser)
 
 router.post('/deposit/:id',userController.Depositing)
 
-router.post('/credit/:id',userController.updatingUser)
+router.post('/credit/:id',userController.updatingCredit)
 
 router.post('/withdraw/:id',userController.withdrawCash)
 

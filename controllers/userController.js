@@ -53,7 +53,7 @@ const addUser = (req, res) => {
 const Depositing = (req, res) => {
 
     let id = req.params.id
-    let deposit = req.body.deposit
+    let deposit = req.body.cash
 
 
     fs.readFile('users.json', (err, data) => {
@@ -78,7 +78,7 @@ const Depositing = (req, res) => {
 }
 
 
-const updatingUser = (req, res) => {
+const updatingCredit = (req, res) => {
 
     let id = req.params.id
     let credit = req.body.credit
@@ -101,15 +101,41 @@ const updatingUser = (req, res) => {
     })
 }
 
+
+const getUser = (req,res) =>{
+
+    const id = req.params.id
+    fs.readFile('users.json', (err, data) => {
+        data = JSON.parse(data)
+        let index = checkIndex(data,id)
+
+        console.log(index)
+
+
+
+        if(index !== false){
+            res.write('<h1>User</h1>')
+            res.write('<div>')
+            res.write(`<p>  <b>  ID :  </b>  ${data[index].id}  , <b> NAME : </b> ${data[index].name}  ,  <b>  CASH : </b> ${data[index].cash}   ,   <b> CREDIT : </b>  ${data[index].credit} </p>`)
+            res.write('<div>')
+        }else{
+            res.write('user Does not exists')
+        }
+        res.end()
+    })
+}
+
+
+
 const withdrawCash = (req,res) =>{
 
     let id = req.params.id
-    let withdraw = req.body.withdraw
+    let withdraw = req.body.cash
 
 
     fs.readFile('users.json', (err, data) => {
         data = JSON.parse(data)
-        let index = checkIndex(data,index)
+        let index = checkIndex(data,id)
 
         if (index  && NumberAndAboveZero(withdraw)) {
 
@@ -132,7 +158,7 @@ const withdrawCash = (req,res) =>{
 const TransferringCash = (req,res) =>{
 
     const {id1,id2} = req.params
-    const transfer = req.body.transfer
+    const transfer = req.body.cash
 
     fs.readFile('users.json',(error,data) =>{
 
@@ -141,9 +167,6 @@ const TransferringCash = (req,res) =>{
         let index1 = checkIndex(data,id1)
         let index2 = checkIndex(data,id2)
 
-        console.log(index1)
-        console.log(index2)
-        console.log(data)
         
         if(index1 !== false && index2 !==false && NumberAndAboveZero(transfer)){
             
@@ -165,10 +188,43 @@ const TransferringCash = (req,res) =>{
 }
 
 
+const getAllUsers = (req,res) =>{
+
+    fs.readFile('users.json',(error,data)=>{
+        data = JSON.parse(data)
+        res.write('<h1> All Users </h1>')
+        
+        data.forEach(p =>{
+            res.write('<div>')
+            res.write(`<p>  <b>  ID :  </b>  ${p.id}  , <b> NAME : </b> ${p.name}  ,  <b>  CASH : </b> ${p.cash}   ,   <b> CREDIT : </b>  ${p.credit} </p>`)
+            res.write('<div>')
+        })
+
+        
+        res.write('<h2>methods</h2>')
+        res.write('<h3>Get All Users -> Routh -> /</h3>')
+        res.write('<h3>Add User -> Routh -> /add , body -> name , method -> post</h3>')
+        res.write('<h3>Depositing -> Routh -> /Depositing/:id , body -> cash , method -> post</h3>')
+        res.write('<h3>updatingCredit -> Routh -> /credit/:id , body -> credit , method -> post</h3>')
+        res.write('<h3>withdrawCash -> Routh -> /withdraw/:id , body -> cash , method -> post</h3>')
+        res.write('<h3>TransferringCash -> Routh -> /transferring/:id1/:id2 , body -> cash , method -> post</h3>')
+        
+        res.end()
+
+
+    })
+
+}
+
+
+
+
 module.exports = {
     addUser,
     Depositing,
-    updatingUser,
+    updatingCredit,
     withdrawCash,
-    TransferringCash
+    TransferringCash,
+    getAllUsers,
+    getUser
 }
