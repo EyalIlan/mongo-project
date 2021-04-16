@@ -2,6 +2,22 @@ const fs = require('fs')
 const generateUniqueId = require('generate-unique-id');
 
 
+const NumberAndAboveZero = (num) =>{
+
+    let check = true;
+    
+    if(isNaN(num)){
+        check = false
+    }
+
+    if(num < 0){
+        check = false
+    }
+    return check;
+}
+
+
+
 const addUser = (req, res) => {
 
     const id = generateUniqueId();
@@ -32,16 +48,15 @@ const Depositing = (req, res) => {
             return p.id
         }).indexOf(id)
 
-        if (index && deposit > 0) {
+        if (index !== -1 && NumberAndAboveZero(deposit)) {
 
             // console.log(index)
             data[index].cash += deposit
-            console.log(data)
 
             fs.writeFile('users.json', JSON.stringify(data), (err) => {
                 console.log(err)
             })
-            res.write(`${data[index].name} got ${data[index].cash + deposit} in his account`)
+            res.write(`${data[index].name} got ${data[index].cash } in his account`)
         } else {
             res.write('User id does not exist in the system or the deposit was negative')
         }
@@ -62,12 +77,9 @@ const updatingUser = (req, res) => {
             return p.id
         }).indexOf(id)
 
-        if (index && credit > 0) {
+        if (index !== -1 && NumberAndAboveZero(credit)) {
 
-        // console.log(index)
             data[index].credit = credit
-            console.log(data)
-
             fs.writeFile('users.json',JSON.stringify(data),(err) =>{
                 console.log(err)
             })
@@ -79,9 +91,41 @@ const updatingUser = (req, res) => {
     })
 }
 
+const withdrawCash = (req,res) =>{
+
+    let id = req.params.id
+    let withdraw = req.body.withdraw
+
+
+    fs.readFile('users.json', (err, data) => {
+        data = JSON.parse(data)
+        let index = data.map(p => {
+            return p.id
+        }).indexOf(id)
+
+        if (index !== -1 && NumberAndAboveZero(withdraw)) {
+
+            if(data[index].cash - withdraw >= -data[index].credit){
+                data[index].cash -= withdraw
+            }
+
+            fs.writeFile('users.json',JSON.stringify(data),(err) =>{
+                console.log(err)
+            })
+            res.write(`${data[index].name} got ${data[index].cash} cash for his account`)
+        } else {
+            res.write('User id does not exist in the system or the deposit was negative')
+        }
+        res.end()
+    })
+}
+
+
+
 
 module.exports = {
     addUser,
     Depositing,
-    updatingUser
+    updatingUser,
+    withdrawCash
 }
